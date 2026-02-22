@@ -1,0 +1,39 @@
+name: Our first python CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  My-first-CI:
+    # Hier wird die Matrix genutzt!
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        # Dies installiert den Paketmanager uv, den dein Skript nutzt
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install the project dependencies using uv
+        run: uv sync --all-extras --dev
+
+      - name: Lint with Ruff
+        # Der Befehl, um ruff auszuführen
+        run: uv run ruff check .
+
+      - name: Test with pytest
+        run: uv run pytest tests/
+        
